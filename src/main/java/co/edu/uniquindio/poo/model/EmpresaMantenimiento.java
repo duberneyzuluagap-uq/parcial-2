@@ -236,7 +236,7 @@ public class EmpresaMantenimiento {
         Optional<Cliente> clienteOptional = buscarCliente(documentoCliente);
         if (clienteOptional.isPresent()) {
             listaEquipos.put(equipo.getCodigoRegistro(), equipo);
-            clienteOptional.get().getListaEquipos().add(equipo);
+            clienteOptional.get().agregarEquipo(equipo);
             return "Equipo registrado y vinculado al cliente";
         }
 
@@ -259,7 +259,11 @@ public class EmpresaMantenimiento {
     public String eliminarEquipo(String codigoRegistro) {
         Optional<EquipoTecnologico> equipoOptional = buscarEquipo(codigoRegistro);
         if (equipoOptional.isPresent()) {
+            EquipoTecnologico equipo = equipoOptional.get();
             listaEquipos.remove(codigoRegistro);
+            for (Cliente c : listaClientes) {
+                c.quitarEquipo(equipo);
+            }
             return "Equipo eliminado del sistema";
         }
         return "No se pudo remover el equipo " + codigoRegistro + " porque no existe";

@@ -56,4 +56,11 @@ public class Cliente extends  Persona{
     public void setListaEquipos(List<EquipoTecnologico> listaEquipos) {
         this.listaEquipos = listaEquipos;
     }
+    public void agregarEquipo(EquipoTecnologico equipo) {
+        listaEquipos.add(equipo);
+    }
+
+    public void quitarEquipo(EquipoTecnologico equipo) {
+        listaEquipos.remove(equipo);
+    }
 }
