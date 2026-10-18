@@ -1,12 +1,12 @@
 package co.edu.uniquindio.poo.model;
 
-public class telefonoInteligente extends EquipoTecnologico {
+public class TelefonoInteligente extends EquipoTecnologico {
     private String sistemaOperativo;
     private String capacidadAlmacenamiento;
     private String capacidadBateria;
     private boolean compatible5G;
 
-    public telefonoInteligente(String codigoRegistro, String numeroSerie, String marca, String modelo,
+    public TelefonoInteligente(String codigoRegistro, String numeroSerie, String marca, String modelo,
                                int añoFabricacion, String estadoFisico, String sistemaOperativo,
                                String capacidadAlmacenamiento, String capacidadBateria, boolean compatible5G) {
         super(codigoRegistro, numeroSerie, marca, modelo, añoFabricacion, estadoFisico);

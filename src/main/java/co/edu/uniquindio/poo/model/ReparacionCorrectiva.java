@@ -14,6 +14,12 @@ public class ReparacionCorrectiva extends Servicio {
 
     @Override
     public double calcularCostoServicio() {
-        return 0;
+        double manoObra = horasTrabjadas * 45_000;
+
+        for (DetalleRepuesto d: listaDetallesRepuesto){
+            manoObra += d.calcularSubTotal();
+
+        }
+        return  manoObra;
     }
 }

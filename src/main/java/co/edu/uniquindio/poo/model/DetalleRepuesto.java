@@ -34,4 +34,8 @@ public class DetalleRepuesto {
     public void setRepuesto(Repuesto repuesto) {
         this.repuesto = repuesto;
     }
+
+    public double calcularSubTotal(){
+        return  cantidadRepuesto*precioUnitarioAplicado;
+    }
 }
