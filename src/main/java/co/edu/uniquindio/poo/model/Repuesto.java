@@ -1,5 +1,7 @@
 package co.edu.uniquindio.poo.model;
 
+import java.util.Objects;
+
 public class Repuesto {
     private String codigo;
     private String nombre;
@@ -65,4 +67,18 @@ public class Repuesto {
     public void setCategoriaCompatibilidad(String categoriaCompatibilidad) {
         this.categoriaCompatibilidad = categoriaCompatibilidad;
     }
+
+    public void descontarExistencias(int cantidad){
+        if (cantidad <= cantidadDisponible) {
+            setCantidadDisponible(cantidadDisponible - cantidad);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Repuesto repuesto = (Repuesto) o;
+        return Objects.equals(codigo, repuesto.codigo);
+    }
+
 }

@@ -1,5 +1,7 @@
 package co.edu.uniquindio.poo.model;
 
+import java.util.Optional;
+
 public class DetalleRepuesto {
     private int cantidadRepuesto;
     private double precioUnitarioAplicado;
@@ -38,4 +40,6 @@ public class DetalleRepuesto {
     public double calcularSubTotal(){
         return  cantidadRepuesto*precioUnitarioAplicado;
     }
+
+
 }

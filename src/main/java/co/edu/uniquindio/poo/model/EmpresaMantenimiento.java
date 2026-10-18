@@ -264,4 +264,115 @@ public class EmpresaMantenimiento {
         }
         return "No se pudo remover el equipo " + codigoRegistro + " porque no existe";
     }
+
+    public Map<String,OrdenServicio> consultarOrdenesCliente(String documento){
+        Optional<Cliente> clienteOptional = buscarCliente(documento);
+
+
+        if (clienteOptional.isPresent()){
+             return clienteOptional.get().getListaOrdenes();
+        }else{
+            return Collections.emptyMap();
+        }
+    }
+
+    public Map<DetalleServicio, EstadoOrden> consultarTrabajosTecnico(String codigoTecnico) {
+        Optional<Tecnico> tecnicoOptional = buscarTecnico(codigoTecnico);
+        Map<DetalleServicio, EstadoOrden> trabajosTecnico = new HashMap<>();
+
+        if (tecnicoOptional.isPresent()) {
+            Tecnico tecnico = tecnicoOptional.get();
+            for (DetalleServicio d : tecnico.getListaDetallesTecnico()) {
+                trabajosTecnico.put(d, d.getEstadoIntervencion());
+            }
+        }
+
+        return trabajosTecnico;
+    }
+
+    public List<EquipoTecnologico> consultarEquiposSinFinalizar(){
+        List<EquipoTecnologico> equiposSinFinalizar = new ArrayList<>();
+        for (OrdenServicio o: listaOrdenes){
+            for (DetalleServicio d: o.getListaDetalles()){
+                if (!d.getEstadoIntervencion().equals(EstadoOrden.FINALIZADA)){
+                    equiposSinFinalizar.add(d.getEquipo());
+                }
+            }
+        }
+        return equiposSinFinalizar;
+    }
+
+    public String generarReporteServicios() {
+        int cantDiagnostico = 0;
+        int cantMantenimiento = 0;
+        int cantReparacion = 0;
+
+        double totalPortatiles = 0;
+        double totalEscritorio = 0;
+        double totalTelefonos = 0;
+
+        for (OrdenServicio o : listaOrdenes) {
+            for (DetalleServicio d : o.getListaDetalles()) {
+
+                Servicio s = d.getServicio();
+                if (s instanceof Diagnostico) {
+                    cantDiagnostico++;
+                } else if (s instanceof MantenimientoPreventivo) {
+                    cantMantenimiento++;
+                } else if (s instanceof ReparacionCorrectiva) {
+                    cantReparacion++;
+                }
+
+                EquipoTecnologico equipo = d.getEquipo();
+                if (equipo instanceof ComputadorPortatil) {
+                    totalPortatiles += d.calcularValorDetalle();
+                } else if (equipo instanceof ComputadorEscritorio) {
+                    totalEscritorio += d.calcularValorDetalle();
+                } else if (equipo instanceof TelefonoInteligente) {
+                    totalTelefonos += d.calcularValorDetalle();
+                }
+            }
+        }
+
+        return "--REPORTE DE SERVICIOS--\n" +
+                "Cantidad por Tipo de Servicio:\n" +
+                "Diagnostico: " + cantDiagnostico + "\n" +
+                "Mantenimiento Preventivo: " + cantMantenimiento + "\n" +
+                "Reparacion Correctiva: " + cantReparacion + "\n\n" +
+                "--TOTAL FACTURADO POR CATEGORIA DE EQUIPO--\n" +
+                "Computadores Portatiles: $" + totalPortatiles + "\n" +
+                "Computadores de Escritorio: $" + totalEscritorio + "\n" +
+                "Telefonos Inteligentes: $" + totalTelefonos;
+    }
+
+    public String generarReporteTecnicos(){
+
+        String reporte = "";
+        for (Tecnico t: listaTecnicos){
+            int intervencionesFinalizadas = 0;
+            double valorServicios = 0;
+            for (DetalleServicio d: t.getListaDetallesTecnico()){
+                if (d.getEstadoIntervencion().equals(EstadoOrden.FINALIZADA)){
+                    intervencionesFinalizadas++;
+                    valorServicios += d.calcularValorDetalle();
+                }
+            }
+            reporte += "Técnico: " + t.getNombre() + "Código: " + t.getCodigo() + "\n" +
+                    "- Intervenciones finalizadas: " + intervencionesFinalizadas + "\n" +
+                    "- Valor total atendido: $" + valorServicios + "\n" +
+                    "-----------------------------------\n";
+        }
+        return reporte;
+
+    }
+
+    public List<Repuesto> identificarRepuestosCriticos(){
+        List<Repuesto> repuestosCriticos = new ArrayList<>();
+        for (Repuesto r: listaRepuestos){
+            if (r.getCantidadDisponible()<5){
+                repuestosCriticos.add(r);
+            }
+        }
+        return repuestosCriticos;
+    }
 }
