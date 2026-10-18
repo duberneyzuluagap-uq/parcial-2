@@ -9,7 +9,7 @@ public class DetalleServicio {
     private Servicio servicio;
     private OrdenServicio ownedByOrdenServicio;
 
-    public DetalleServicio(String codigo, String descripcionFalla, String estadoIntervencio, Tecnico tecnico,
+    public DetalleServicio(String codigo, String descripcionFalla, EstadoOrden estadoIntervencion, Tecnico tecnico,
                            EquipoTecnologico equipo, Servicio servicio, OrdenServicio ownedByOrdenServicio) {
         this.codigo = codigo;
         this.descripcionFalla = descripcionFalla;
