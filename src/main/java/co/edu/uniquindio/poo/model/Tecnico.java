@@ -41,6 +41,14 @@ public class Tecnico extends Persona {
         this.estadoLaboral = estadoLaboral;
     }
 
+    public void agregarDetalle(DetalleServicio detalle) {
+        if (!listaDetallesTecnico.contains(detalle)) {listaDetallesTecnico.add(detalle);}
+    }
+
+    public void quitarDetalle(DetalleServicio detalle) {
+        listaDetallesTecnico.remove(detalle);
+    }
+
     public List<DetalleServicio> getListaDetallesTecnico() {
         return Collections.unmodifiableList(listaDetallesTecnico);
     }

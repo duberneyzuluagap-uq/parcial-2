@@ -74,8 +74,10 @@ public class DetalleServicio {
             return "La especialidad del tecnico (" + especialidad + ") no coincide con el tipo de equipo";
         }
 
-
+        if (this.tecnico != null) {
+            this.tecnico.quitarDetalle(this);}
         this.tecnico = tecnico;
+        tecnico.quitarDetalle(this);
         return "Tecnico asignado correctamente al servicio";
     }
 

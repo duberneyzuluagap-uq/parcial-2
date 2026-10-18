@@ -63,4 +63,6 @@ public class Cliente extends  Persona{
     public void quitarEquipo(EquipoTecnologico equipo) {
         listaEquipos.remove(equipo);
     }
+    public void agregarOrden(OrdenServicio orden){listaOrdenes.put(orden.getCodigo(), orden);}
+    public void quitarOrden(String CodigoOrden){listaOrdenes.remove(CodigoOrden);}
 }

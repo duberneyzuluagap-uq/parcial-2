@@ -115,12 +115,16 @@ public class EmpresaMantenimiento {
         return ordenServicioOptional;
     }
 
-    public String registrarOrdenServicio(OrdenServicio ordenServicio) {
+    public String registrarOrdenServicio(OrdenServicio ordenServicio, String documentoCliente) {
         Optional<OrdenServicio> ordenServicioOptional = buscarOrdenServicio(ordenServicio.getCodigo());
         if (ordenServicioOptional.isPresent()) {
             return "La orden de servicio " + ordenServicio.getCodigo() + " ya esta registrada";
         }
+        Optional<Cliente> clienteOptional=buscarCliente(documentoCliente);
+        if(clienteOptional.isEmpty()){
+            return "No fue posible registrar la orden porque el cliente "+documentoCliente+" no existe.";}
         listaOrdenes.add(ordenServicio);
+        clienteOptional.get().agregarOrden(ordenServicio);
         return "Orden de servicio guardada correctamente";
     }
 
@@ -139,6 +143,9 @@ public class EmpresaMantenimiento {
         Optional<OrdenServicio> ordenServicioOptional = buscarOrdenServicio(codigoOrden);
         if (ordenServicioOptional.isPresent()) {
             listaOrdenes.remove(ordenServicioOptional.get());
+            for (Cliente c : listaClientes) {
+                c.quitarOrden(codigoOrden);
+            }
             return "Orden eliminada del sistema";
         }
         return "No fue posible encontrar la orden " + codigoOrden;
@@ -361,7 +368,7 @@ public class EmpresaMantenimiento {
                     valorServicios += d.calcularValorDetalle();
                 }
             }
-            reporte += "Técnico: " + t.getNombre() + "Código: " + t.getCodigo() + "\n" +
+            reporte += "Técnico: " + t.getNombre() + " Código: " + t.getCodigo() + "\n" +
                     "- Intervenciones finalizadas: " + intervencionesFinalizadas + "\n" +
                     "- Valor total atendido: $" + valorServicios + "\n" +
                     "-----------------------------------\n";
