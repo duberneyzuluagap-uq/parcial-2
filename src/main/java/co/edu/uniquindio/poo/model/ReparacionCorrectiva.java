@@ -35,6 +35,8 @@ public class ReparacionCorrectiva extends Servicio {
 
         if (detalleRepuestoOptional.isPresent()){
             return "Ya esta registrado ese repuesto en el servicio";
+        }else if(detalle.getCantidadRepuesto() <= 0){
+            return "La cantidad del repuesto debe ser mayor a 0";
         }else if(detalle.getCantidadRepuesto()<= detalle.getRepuesto().getCantidadDisponible() ){
             listaDetallesRepuesto.add(detalle);
             detalle.getRepuesto().descontarExistencias(detalle.getCantidadRepuesto());

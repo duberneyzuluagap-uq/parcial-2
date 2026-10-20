@@ -305,8 +305,10 @@ public class EmpresaMantenimiento {
         List<EquipoTecnologico> equiposSinFinalizar = new ArrayList<>();
         for (OrdenServicio o: listaOrdenes){
             for (DetalleServicio d: o.getListaDetalles()){
-                if (!d.getEstadoIntervencion().equals(EstadoOrden.FINALIZADA)){
-                    equiposSinFinalizar.add(d.getEquipo());
+                if (!d.getEstadoIntervencion().equals(EstadoOrden.FINALIZADA) && !d.getEstadoIntervencion().equals(EstadoOrden.CANCELADA)){
+                    if (d.getEquipo() != null && !equiposSinFinalizar.contains(d.getEquipo())) {
+                        equiposSinFinalizar.add(d.getEquipo());
+                    }
                 }
             }
         }
@@ -357,24 +359,44 @@ public class EmpresaMantenimiento {
     }
 
     public String generarReporteTecnicos(){
-
-        String reporte = "";
+        String reporte = "-- REPORTE DE TÉCNICOS --\n\n";
         for (Tecnico t: listaTecnicos){
+            int intervencionesAsignadas = t.getListaDetallesTecnico().size();
             int intervencionesFinalizadas = 0;
-            double valorServicios = 0;
+            double valorServiciosFinalizados = 0;
+            double valorTotalAsignado = 0;
+
             for (DetalleServicio d: t.getListaDetallesTecnico()){
+                double val = d.calcularValorDetalle();
+                valorTotalAsignado += val;
                 if (d.getEstadoIntervencion().equals(EstadoOrden.FINALIZADA)){
                     intervencionesFinalizadas++;
-                    valorServicios += d.calcularValorDetalle();
+                    valorServiciosFinalizados += val;
                 }
             }
-            reporte += "Técnico: " + t.getNombre() + " Código: " + t.getCodigo() + "\n" +
+            reporte += "Técnico: " + t.getNombre() + " (Código: " + t.getCodigo() + " - Especialidad: " + t.getEspecialdad() + ")\n" +
+                    "- Trabajos asignados: " + intervencionesAsignadas + "\n" +
                     "- Intervenciones finalizadas: " + intervencionesFinalizadas + "\n" +
-                    "- Valor total atendido: $" + valorServicios + "\n" +
+                    "- Valor servicios finalizados: $" + valorServiciosFinalizados + "\n" +
+                    "- Valor total servicios asignados: $" + valorTotalAsignado + "\n" +
                     "-----------------------------------\n";
         }
-        return reporte;
 
+        int detallesSinTecnico = 0;
+        double valorSinTecnico = 0;
+        for (OrdenServicio o : listaOrdenes) {
+            for (DetalleServicio d : o.getListaDetalles()) {
+                if (d.getTecnico() == null) {
+                    detallesSinTecnico++;
+                    valorSinTecnico += d.calcularValorDetalle();
+                }
+            }
+        }
+        if (detallesSinTecnico > 0) {
+            reporte += "AVISO: Hay " + detallesSinTecnico + " servicio(s) en órdenes SIN técnico asignado (Valor: $" + valorSinTecnico + ").\n";
+        }
+
+        return reporte;
     }
 
     public List<Repuesto> identificarRepuestosCriticos(){

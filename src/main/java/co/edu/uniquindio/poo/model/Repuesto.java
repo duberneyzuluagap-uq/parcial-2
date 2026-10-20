@@ -69,7 +69,7 @@ public class Repuesto {
     }
 
     public void descontarExistencias(int cantidad){
-        if (cantidad <= cantidadDisponible) {
+        if (cantidad > 0 && cantidad <= cantidadDisponible) {
             setCantidadDisponible(cantidadDisponible - cantidad);
         }
     }

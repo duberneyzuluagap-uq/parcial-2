@@ -7,10 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class Main {
-    private static final EmpresaMantenimiento empresa = new EmpresaMantenimiento("TechRepair", "EMP-001");
-
-    private static class OperacionCancelada extends RuntimeException {
-    }
+    public static final EmpresaMantenimiento empresa = new EmpresaMantenimiento("TechRepair", "EMP-001");
 
     public static void main(String[] args) {
         int opcion;
@@ -50,15 +47,15 @@ public class Main {
         } while (opcion != 0);
     }
 
-    private static String leerTexto(String mensaje) {
+    public static String leerTexto(String mensaje) {
         String texto = JOptionPane.showInputDialog(null, mensaje, "TechRepair", JOptionPane.QUESTION_MESSAGE);
         if (texto == null) {
-            throw new OperacionCancelada();
+            return "";
         }
         return texto.trim();
     }
 
-    private static int leerOpcion(String menu) {
+    public static int leerOpcion(String menu) {
         String texto = JOptionPane.showInputDialog(null, menu + "\n\nElija una opcion:", "TechRepair", JOptionPane.QUESTION_MESSAGE);
         if (texto == null) {
             return 0;
@@ -70,27 +67,35 @@ public class Main {
         }
     }
 
-    private static int leerEntero(String mensaje) {
+    public static int leerEntero(String mensaje) {
         while (true) {
             try {
-                return Integer.parseInt(leerTexto(mensaje));
+                String texto = leerTexto(mensaje);
+                if (texto.isEmpty()) {
+                    return 0;
+                }
+                return Integer.parseInt(texto);
             } catch (NumberFormatException e) {
                 mostrar("Ingrese un numero entero valido");
             }
         }
     }
 
-    private static double leerDecimal(String mensaje) {
+    public static double leerDecimal(String mensaje) {
         while (true) {
             try {
-                return Double.parseDouble(leerTexto(mensaje));
+                String texto = leerTexto(mensaje);
+                if (texto.isEmpty()) {
+                    return 0.0;
+                }
+                return Double.parseDouble(texto);
             } catch (NumberFormatException e) {
                 mostrar("Ingrese un numero valido");
             }
         }
     }
 
-    private static int leerRango(String mensaje, int minimo, int maximo) {
+    public static int leerRango(String mensaje, int minimo, int maximo) {
         while (true) {
             int numero = leerEntero(mensaje);
             if (numero >= minimo && numero <= maximo) {
@@ -100,27 +105,43 @@ public class Main {
         }
     }
 
-    private static boolean leerSiNo(String mensaje) {
+    public static boolean leerSiNo(String mensaje) {
         return leerRango(mensaje + "\n1. Si\n2. No", 1, 2) == 1;
     }
 
-    private static <T extends Enum<T>> T elegirOpcion(String titulo, T[] valores) {
-        String lista = titulo + "\n";
-        for (int i = 0; i < valores.length; i++) {
-            lista += (i + 1) + ". " + valores[i] + "\n";
-        }
-        return valores[leerRango(lista, 1, valores.length) - 1];
+    public static Especialdad elegirEspecialidad() {
+        int op = leerRango("Especialidad:\n1. COMPUTADORES\n2. DISPOSITIVOS_MOVILES\n3. SOPORTE_GENERAL", 1, 3);
+        if (op == 1) return Especialdad.COMPUTADORES;
+        if (op == 2) return Especialdad.DISPOSITIVOS_MOVILES;
+        return Especialdad.SOPORTE_GENERAL;
     }
 
-    private static void mostrar(String mensaje) {
+    public static EstadoLaboral elegirEstadoLaboral() {
+        int op = leerRango("Estado laboral:\n1. ACTIVO\n2. INACTIVO", 1, 2);
+        if (op == 1) return EstadoLaboral.ACTIVO;
+        return EstadoLaboral.INACTIVO;
+    }
+
+    public static EstadoOrden elegirEstadoOrden(String mensaje) {
+        int op = leerRango(mensaje + "\n1. ABIERTA\n2. EN_PROCESO\n3. FINALIZADA\n4. ENTREGADA\n5. CANCELADA", 1, 5);
+        switch (op) {
+            case 1: return EstadoOrden.ABIERTA;
+            case 2: return EstadoOrden.EN_PROCESO;
+            case 3: return EstadoOrden.FINALIZADA;
+            case 4: return EstadoOrden.ENTREGADA;
+            case 5: return EstadoOrden.CANCELADA;
+            default: return EstadoOrden.ABIERTA;
+        }
+    }
+
+    public static void mostrar(String mensaje) {
         JOptionPane.showMessageDialog(null, mensaje, "TechRepair", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private static void menuClientes() {
+    public static void menuClientes() {
         int opcion;
         do {
             opcion = leerOpcion("CLIENTES\n\n1. Registrar cliente\n2. Buscar cliente\n3. Actualizar cliente\n4. Eliminar cliente\n0. Volver");
-            try {
                 switch (opcion) {
                     case 1:
                         registrarCliente();
@@ -139,13 +160,10 @@ public class Main {
                     default:
                         mostrar("Opcion invalida");
                 }
-            } catch (OperacionCancelada e) {
-                mostrar("Operacion cancelada");
-            }
         } while (opcion != 0);
     }
 
-    private static void registrarCliente() {
+    public static void registrarCliente() {
         String documento = leerTexto("Documento:");
         String nombre = leerTexto("Nombre completo:");
         String telefono = leerTexto("Telefono:");
@@ -154,7 +172,7 @@ public class Main {
         mostrar(empresa.registrarCliente(new Cliente(documento, nombre, telefono, correo, direccion)));
     }
 
-    private static void buscarCliente() {
+    public static void buscarCliente() {
         Optional<Cliente> clienteOptional = empresa.buscarCliente(leerTexto("Documento del cliente:"));
         if (clienteOptional.isPresent()) {
             Cliente c = clienteOptional.get();
@@ -170,7 +188,7 @@ public class Main {
         }
     }
 
-    private static void actualizarCliente() {
+    public static void actualizarCliente() {
         String documento = leerTexto("Documento del cliente a actualizar:");
         String nombre = leerTexto("Nuevo nombre completo:");
         String telefono = leerTexto("Nuevo telefono:");
@@ -179,15 +197,14 @@ public class Main {
         mostrar(empresa.actualizarCliente(documento, nombre, telefono, correo, direccion));
     }
 
-    private static void eliminarCliente() {
+    public static void eliminarCliente() {
         mostrar(empresa.eliminarCliente(leerTexto("Documento del cliente a eliminar:")));
     }
 
-    private static void menuTecnicos() {
+    public static void menuTecnicos() {
         int opcion;
         do {
             opcion = leerOpcion("TECNICOS\n\n1. Registrar tecnico\n2. Buscar tecnico\n3. Actualizar tecnico\n4. Eliminar tecnico\n0. Volver");
-            try {
                 switch (opcion) {
                     case 1:
                         registrarTecnico();
@@ -206,22 +223,19 @@ public class Main {
                     default:
                         mostrar("Opcion invalida");
                 }
-            } catch (OperacionCancelada e) {
-                mostrar("Operacion cancelada");
-            }
         } while (opcion != 0);
     }
 
-    private static void registrarTecnico() {
+    public static void registrarTecnico() {
         String documento = leerTexto("Documento:");
         String nombre = leerTexto("Nombre completo:");
         String codigo = leerTexto("Codigo del tecnico:");
-        Especialdad especialidad = elegirOpcion("Especialidad:", Especialdad.values());
-        EstadoLaboral estadoLaboral = elegirOpcion("Estado laboral:", EstadoLaboral.values());
+        Especialdad especialidad = elegirEspecialidad();
+        EstadoLaboral estadoLaboral = elegirEstadoLaboral();
         mostrar(empresa.registrarTecnico(new Tecnico(documento, nombre, codigo, especialidad, estadoLaboral)));
     }
 
-    private static void buscarTecnico() {
+    public static void buscarTecnico() {
         Optional<Tecnico> tecnicoOptional = empresa.buscarTecnico(leerTexto("Codigo del tecnico:"));
         if (tecnicoOptional.isPresent()) {
             Tecnico t = tecnicoOptional.get();
@@ -236,23 +250,22 @@ public class Main {
         }
     }
 
-    private static void actualizarTecnico() {
+    public static void actualizarTecnico() {
         String codigo = leerTexto("Codigo del tecnico a actualizar:");
         String nombre = leerTexto("Nuevo nombre completo:");
-        Especialdad especialidad = elegirOpcion("Nueva especialidad:", Especialdad.values());
-        EstadoLaboral estadoLaboral = elegirOpcion("Nuevo estado laboral:", EstadoLaboral.values());
+        Especialdad especialidad = elegirEspecialidad();
+        EstadoLaboral estadoLaboral = elegirEstadoLaboral();
         mostrar(empresa.actualizarTecnico(codigo, nombre, especialidad, estadoLaboral));
     }
 
-    private static void eliminarTecnico() {
+    public static void eliminarTecnico() {
         mostrar(empresa.eliminarTecnico(leerTexto("Codigo del tecnico a eliminar:")));
     }
 
-    private static void menuRepuestos() {
+    public static void menuRepuestos() {
         int opcion;
         do {
             opcion = leerOpcion("REPUESTOS\n\n1. Registrar repuesto\n2. Buscar repuesto\n3. Actualizar repuesto\n4. Eliminar repuesto\n0. Volver");
-            try {
                 switch (opcion) {
                     case 1:
                         registrarRepuesto();
@@ -271,13 +284,10 @@ public class Main {
                     default:
                         mostrar("Opcion invalida");
                 }
-            } catch (OperacionCancelada e) {
-                mostrar("Operacion cancelada");
-            }
         } while (opcion != 0);
     }
 
-    private static void registrarRepuesto() {
+    public static void registrarRepuesto() {
         String codigo = leerTexto("Codigo del repuesto:");
         String nombre = leerTexto("Nombre:");
         String descripcion = leerTexto("Descripcion:");
@@ -287,7 +297,7 @@ public class Main {
         mostrar(empresa.registrarRepuesto(new Repuesto(codigo, nombre, descripcion, precio, cantidad, categoria)));
     }
 
-    private static void buscarRepuesto() {
+    public static void buscarRepuesto() {
         Optional<Repuesto> repuestoOptional = empresa.buscarRepuesto(leerTexto("Codigo del repuesto:"));
         if (repuestoOptional.isPresent()) {
             Repuesto r = repuestoOptional.get();
@@ -302,7 +312,7 @@ public class Main {
         }
     }
 
-    private static void actualizarRepuesto() {
+    public static void actualizarRepuesto() {
         String codigo = leerTexto("Codigo del repuesto a actualizar:");
         String nombre = leerTexto("Nuevo nombre:");
         String descripcion = leerTexto("Nueva descripcion:");
@@ -312,15 +322,14 @@ public class Main {
         mostrar(empresa.actualizarRepuesto(codigo, nombre, descripcion, precio, cantidad, categoria));
     }
 
-    private static void eliminarRepuesto() {
+    public static void eliminarRepuesto() {
         mostrar(empresa.eliminarRepuesto(leerTexto("Codigo del repuesto a eliminar:")));
     }
 
-    private static void menuEquipos() {
+    public static void menuEquipos() {
         int opcion;
         do {
             opcion = leerOpcion("EQUIPOS TECNOLOGICOS\n\n1. Registrar equipo\n2. Buscar equipo\n3. Actualizar equipo\n4. Eliminar equipo\n0. Volver");
-            try {
                 switch (opcion) {
                     case 1:
                         registrarEquipo();
@@ -339,13 +348,10 @@ public class Main {
                     default:
                         mostrar("Opcion invalida");
                 }
-            } catch (OperacionCancelada e) {
-                mostrar("Operacion cancelada");
-            }
         } while (opcion != 0);
     }
 
-    private static void registrarEquipo() {
+    public static void registrarEquipo() {
         int tipo = leerRango("Tipo de equipo:\n1. Computador portatil\n2. Computador de escritorio\n3. Telefono inteligente", 1, 3);
         String codigo = leerTexto("Codigo de registro:");
         String serie = leerTexto("Numero de serie:");
@@ -363,8 +369,9 @@ public class Main {
         } else if (tipo == 2) {
             String procesador = leerTexto("Tipo de procesador:");
             String ram = leerTexto("Memoria RAM:");
+            String almacenamiento = leerTexto("Capacidad de almacenamiento:");
             boolean tarjetaDedicada = leerSiNo("¿Tiene tarjeta dedicada?");
-            equipo = new ComputadorEscritorio(codigo, serie, marca, modelo, anio, estadoFisico, procesador, ram, tarjetaDedicada);
+            equipo = new ComputadorEscritorio(codigo, serie, marca, modelo, anio, estadoFisico, procesador, ram, almacenamiento, tarjetaDedicada);
         } else {
             String sistemaOperativo = leerTexto("Sistema operativo:");
             String almacenamiento = leerTexto("Capacidad de almacenamiento:");
@@ -376,7 +383,7 @@ public class Main {
         mostrar(empresa.registrarEquipo(equipo, documentoCliente));
     }
 
-    private static void buscarEquipo() {
+    public static void buscarEquipo() {
         Optional<EquipoTecnologico> equipoOptional = empresa.buscarEquipo(leerTexto("Codigo de registro del equipo:"));
         if (equipoOptional.isPresent()) {
             EquipoTecnologico e = equipoOptional.get();
@@ -398,7 +405,7 @@ public class Main {
         }
     }
 
-    private static void actualizarEquipo() {
+    public static void actualizarEquipo() {
         String codigo = leerTexto("Codigo de registro del equipo a actualizar:");
         String marca = leerTexto("Nueva marca:");
         String modelo = leerTexto("Nuevo modelo:");
@@ -407,15 +414,14 @@ public class Main {
         mostrar(empresa.actualizarEquipo(codigo, marca, modelo, anio, estadoFisico));
     }
 
-    private static void eliminarEquipo() {
+    public static void eliminarEquipo() {
         mostrar(empresa.eliminarEquipo(leerTexto("Codigo de registro del equipo a eliminar:")));
     }
 
-    private static void menuServicios() {
+    public static void menuServicios() {
         int opcion;
         do {
             opcion = leerOpcion("SERVICIOS\n\n1. Registrar servicio\n2. Buscar servicio\n3. Actualizar servicio\n4. Eliminar servicio\n5. Agregar repuesto a una reparacion correctiva\n6. Calcular costo de un servicio\n0. Volver");
-            try {
                 switch (opcion) {
                     case 1:
                         registrarServicio();
@@ -440,13 +446,10 @@ public class Main {
                     default:
                         mostrar("Opcion invalida");
                 }
-            } catch (OperacionCancelada e) {
-                mostrar("Operacion cancelada");
-            }
         } while (opcion != 0);
     }
 
-    private static void registrarServicio() {
+    public static void registrarServicio() {
         int tipo = leerRango("Tipo de servicio:\n1. Diagnostico\n2. Mantenimiento preventivo\n3. Reparacion correctiva", 1, 3);
         EquipoTecnologico equipo = null;
         if (tipo == 2) {
@@ -473,7 +476,7 @@ public class Main {
         mostrar(empresa.registrarServicio(servicio));
     }
 
-    private static void buscarServicio() {
+    public static void buscarServicio() {
         Optional<Servicio> servicioOptional = empresa.buscarServicio(leerTexto("Codigo del servicio:"));
         if (servicioOptional.isPresent()) {
             Servicio s = servicioOptional.get();
@@ -494,7 +497,7 @@ public class Main {
         }
     }
 
-    private static void actualizarServicio() {
+    public static void actualizarServicio() {
         String codigo = leerTexto("Codigo del servicio a actualizar:");
         String nombre = leerTexto("Nuevo nombre:");
         String descripcion = leerTexto("Nueva descripcion:");
@@ -502,11 +505,11 @@ public class Main {
         mostrar(empresa.actualizarServicio(codigo, nombre, descripcion, tarifaBase));
     }
 
-    private static void eliminarServicio() {
+    public static void eliminarServicio() {
         mostrar(empresa.eliminarServicio(leerTexto("Codigo del servicio a eliminar:")));
     }
 
-    private static void agregarRepuestoAReparacion() {
+    public static void agregarRepuestoAReparacion() {
         Optional<Servicio> servicioOptional = empresa.buscarServicio(leerTexto("Codigo de la reparacion correctiva:"));
         if (servicioOptional.isEmpty()) {
             mostrar("No se encontro el servicio");
@@ -532,7 +535,7 @@ public class Main {
         mostrar(reparacion.registrarDetalleRepuesto(detalle));
     }
 
-    private static void calcularCostoServicio() {
+    public static void calcularCostoServicio() {
         Optional<Servicio> servicioOptional = empresa.buscarServicio(leerTexto("Codigo del servicio:"));
         if (servicioOptional.isPresent()) {
             mostrar("Costo del servicio " + servicioOptional.get().getNombre() + ": " + servicioOptional.get().calcularCostoServicio());
@@ -541,11 +544,10 @@ public class Main {
         }
     }
 
-    private static void menuOrdenes() {
+    public static void menuOrdenes() {
         int opcion;
         do {
             opcion = leerOpcion("ORDENES DE SERVICIO\n\n1. Registrar orden\n2. Buscar orden\n3. Actualizar orden\n4. Eliminar orden\n5. Agregar detalle de servicio a una orden\n6. Asignar tecnico a un detalle\n7. Actualizar estado de un detalle\n8. Eliminar detalle de una orden\n9. Calcular valor total de una orden\n10. Finalizar orden\n0. Volver");
-            try {
                 switch (opcion) {
                     case 1:
                         registrarOrden();
@@ -582,13 +584,10 @@ public class Main {
                     default:
                         mostrar("Opcion invalida");
                 }
-            } catch (OperacionCancelada e) {
-                mostrar("Operacion cancelada");
-            }
         } while (opcion != 0);
     }
 
-    private static void registrarOrden() {
+    public static void registrarOrden() {
         String codigo = leerTexto("Codigo de la orden:");
         String observaciones = leerTexto("Observaciones:");
         String documentoCliente = leerTexto("Documento del cliente:");
@@ -596,7 +595,7 @@ public class Main {
         mostrar(empresa.registrarOrdenServicio(orden, documentoCliente));
     }
 
-    private static void buscarOrden() {
+    public static void buscarOrden() {
         Optional<OrdenServicio> ordenOptional = empresa.buscarOrdenServicio(leerTexto("Codigo de la orden:"));
         if (ordenOptional.isPresent()) {
             OrdenServicio o = ordenOptional.get();
@@ -610,11 +609,11 @@ public class Main {
                 resultado += "Sin detalles registrados\n";
             }
             for (DetalleServicio d : o.getListaDetalles()) {
-                String tecnico = "Sin tecnico";
+                String tecnico = "Sin tecnico asignado";
                 if (d.getTecnico() != null) {
-                    tecnico = d.getTecnico().getNombre();
+                    tecnico = d.getTecnico().getNombre() + " (" + d.getTecnico().getCodigo() + ")";
                 }
-                resultado += d.getCodigo() + " - " + d.getDescripcionFalla() + " - " + d.getEstadoIntervencion() + " - " + tecnico + "\n";
+                resultado += d.getCodigo() + " - " + d.getDescripcionFalla() + " - " + d.getEstadoIntervencion() + " - Tecnico: " + tecnico + " - Valor: $" + d.calcularValorDetalle() + "\n";
             }
             mostrar(resultado);
         } else {
@@ -622,18 +621,18 @@ public class Main {
         }
     }
 
-    private static void actualizarOrden() {
+    public static void actualizarOrden() {
         String codigo = leerTexto("Codigo de la orden a actualizar:");
-        EstadoOrden estado = elegirOpcion("Nuevo estado de la orden:", EstadoOrden.values());
+        EstadoOrden estado = elegirEstadoOrden("Nuevo estado de la orden:");
         String observaciones = leerTexto("Nuevas observaciones:");
         mostrar(empresa.actualizarOrdenServicio(codigo, estado, observaciones));
     }
 
-    private static void eliminarOrden() {
+    public static void eliminarOrden() {
         mostrar(empresa.eliminarOrdenServicio(leerTexto("Codigo de la orden a eliminar:")));
     }
 
-    private static void agregarDetalle() {
+    public static void agregarDetalle() {
         Optional<OrdenServicio> ordenOptional = empresa.buscarOrdenServicio(leerTexto("Codigo de la orden:"));
         if (ordenOptional.isEmpty()) {
             mostrar("No se encontro la orden");
@@ -654,10 +653,21 @@ public class Main {
         String descripcionFalla = leerTexto("Descripcion de la falla:");
         DetalleServicio detalle = new DetalleServicio(codigo, descripcionFalla, EstadoOrden.ABIERTA, null,
                 equipoOptional.get(), servicioOptional.get(), orden);
-        mostrar(orden.registrarDetalleServicio(detalle));
+        String mensaje = orden.registrarDetalleServicio(detalle);
+        
+        if (leerSiNo(mensaje + "\n\n¿Desea asignar un tecnico responsable a este detalle ahora mismo?")) {
+            Optional<Tecnico> tecnicoOptional = empresa.buscarTecnico(leerTexto("Codigo del tecnico a asignar:"));
+            if (tecnicoOptional.isPresent()) {
+                mostrar(detalle.asignarTecnico(tecnicoOptional.get()));
+            } else {
+                mostrar("No se encontro el tecnico. Podra asignarlo luego desde la opcion 6.");
+            }
+        } else {
+            mostrar("Detalle registrado. Recuerde que puede asignarle un tecnico en la opcion 6.");
+        }
     }
 
-    private static void asignarTecnico() {
+    public static void asignarTecnico() {
         Optional<OrdenServicio> ordenOptional = empresa.buscarOrdenServicio(leerTexto("Codigo de la orden:"));
         if (ordenOptional.isEmpty()) {
             mostrar("No se encontro la orden");
@@ -676,18 +686,18 @@ public class Main {
         mostrar(detalleOptional.get().asignarTecnico(tecnicoOptional.get()));
     }
 
-    private static void actualizarEstadoDetalle() {
+    public static void actualizarEstadoDetalle() {
         Optional<OrdenServicio> ordenOptional = empresa.buscarOrdenServicio(leerTexto("Codigo de la orden:"));
         if (ordenOptional.isEmpty()) {
             mostrar("No se encontro la orden");
             return;
         }
         String codigoDetalle = leerTexto("Codigo del detalle:");
-        EstadoOrden estado = elegirOpcion("Nuevo estado del detalle:", EstadoOrden.values());
+        EstadoOrden estado = elegirEstadoOrden("Nuevo estado del detalle:");
         mostrar(ordenOptional.get().actualizarEstadoDetalle(codigoDetalle, estado));
     }
 
-    private static void eliminarDetalle() {
+    public static void eliminarDetalle() {
         Optional<OrdenServicio> ordenOptional = empresa.buscarOrdenServicio(leerTexto("Codigo de la orden:"));
         if (ordenOptional.isEmpty()) {
             mostrar("No se encontro la orden");
@@ -696,7 +706,7 @@ public class Main {
         mostrar(ordenOptional.get().eliminarDetalleServicio(leerTexto("Codigo del detalle a eliminar:")));
     }
 
-    private static void calcularValorOrden() {
+    public static void calcularValorOrden() {
         Optional<OrdenServicio> ordenOptional = empresa.buscarOrdenServicio(leerTexto("Codigo de la orden:"));
         if (ordenOptional.isPresent()) {
             mostrar("Valor total de la orden " + ordenOptional.get().getCodigo() + ": " + ordenOptional.get().calcularValorTotalOrden());
@@ -705,7 +715,7 @@ public class Main {
         }
     }
 
-    private static void finalizarOrden() {
+    public static void finalizarOrden() {
         Optional<OrdenServicio> ordenOptional = empresa.buscarOrdenServicio(leerTexto("Codigo de la orden:"));
         if (ordenOptional.isPresent()) {
             mostrar(ordenOptional.get().finalizarOrden());
@@ -714,11 +724,10 @@ public class Main {
         }
     }
 
-    private static void menuConsultas() {
+    public static void menuConsultas() {
         int opcion;
         do {
             opcion = leerOpcion("CONSULTAS Y REPORTES\n\n1. Ordenes de un cliente\n2. Trabajos de un tecnico\n3. Equipos sin finalizar\n4. Repuestos criticos\n5. Reporte de servicios\n6. Reporte de tecnicos\n0. Volver");
-            try {
                 switch (opcion) {
                     case 1:
                         consultarOrdenesCliente();
@@ -743,13 +752,10 @@ public class Main {
                     default:
                         mostrar("Opcion invalida");
                 }
-            } catch (OperacionCancelada e) {
-                mostrar("Operacion cancelada");
-            }
         } while (opcion != 0);
     }
 
-    private static void consultarOrdenesCliente() {
+    public static void consultarOrdenesCliente() {
         Map<String, OrdenServicio> ordenes = empresa.consultarOrdenesCliente(leerTexto("Documento del cliente:"));
         if (ordenes.isEmpty()) {
             mostrar("El cliente no existe o no tiene ordenes registradas");
@@ -758,25 +764,46 @@ public class Main {
         String resultado = "ORDENES DEL CLIENTE\n\n";
         for (Map.Entry<String, OrdenServicio> entrada : ordenes.entrySet()) {
             OrdenServicio o = entrada.getValue();
-            resultado += o.getCodigo() + " - " + o.getFecha() + " - " + o.getEstadoOrden() + " - " + o.getObservaciones() + "\n";
+            resultado += "Orden: " + o.getCodigo() + " | Fecha: " + o.getFecha() + " | Estado: " + o.getEstadoOrden() + " | Total: $" + o.calcularValorTotalOrden() + "\n";
+            resultado += "Observaciones: " + o.getObservaciones() + "\n";
+            if (o.getListaDetalles().isEmpty()) {
+                resultado += "  (Sin detalles de servicio registrados)\n";
+            } else {
+                for (DetalleServicio d : o.getListaDetalles()) {
+                    String nomEquipo = d.getEquipo() != null ? d.getEquipo().getCodigoRegistro() + " (" + d.getEquipo().getMarca() + ")" : "Sin equipo";
+                    String nomServicio = d.getServicio() != null ? d.getServicio().getNombre() : "Sin servicio";
+                    resultado += "  - Detalle: " + d.getCodigo() + " | Equipo: " + nomEquipo + " | Servicio: " + nomServicio + " | Valor: $" + d.calcularValorDetalle() + "\n";
+                }
+            }
+            resultado += "----------------------------------------\n";
         }
         mostrar(resultado);
     }
 
-    private static void consultarTrabajosTecnico() {
+    public static void consultarTrabajosTecnico() {
         Map<DetalleServicio, EstadoOrden> trabajos = empresa.consultarTrabajosTecnico(leerTexto("Codigo del tecnico:"));
         if (trabajos.isEmpty()) {
             mostrar("El tecnico no existe o no tiene trabajos asignados");
             return;
         }
-        String resultado = "TRABAJOS DEL TECNICO\n\n";
-        for (Map.Entry<DetalleServicio, EstadoOrden> entrada : trabajos.entrySet()) {
-            resultado += entrada.getKey().getCodigo() + " - " + entrada.getKey().getDescripcionFalla() + " - " + entrada.getValue() + "\n";
+        String resultado = "TRABAJOS DEL TECNICO (AGRUPADOS POR ESTADO)\n\n";
+        for (EstadoOrden estado : EstadoOrden.values()) {
+            boolean tieneEnEstado = false;
+            String grupo = "ESTADO: " + estado + "\n";
+            for (Map.Entry<DetalleServicio, EstadoOrden> entrada : trabajos.entrySet()) {
+                if (entrada.getValue() == estado) {
+                    tieneEnEstado = true;
+                    grupo += "  - Código: " + entrada.getKey().getCodigo() + " | Falla: " + entrada.getKey().getDescripcionFalla() + "\n";
+                }
+            }
+            if (tieneEnEstado) {
+                resultado += grupo + "\n";
+            }
         }
         mostrar(resultado);
     }
 
-    private static void consultarEquiposSinFinalizar() {
+    public static void consultarEquiposSinFinalizar() {
         List<EquipoTecnologico> equipos = empresa.consultarEquiposSinFinalizar();
         if (equipos.isEmpty()) {
             mostrar("No hay equipos con intervenciones pendientes");
@@ -789,7 +816,7 @@ public class Main {
         mostrar(resultado);
     }
 
-    private static void consultarRepuestosCriticos() {
+    public static void consultarRepuestosCriticos() {
         List<Repuesto> repuestos = empresa.identificarRepuestosCriticos();
         if (repuestos.isEmpty()) {
             mostrar("No hay repuestos en estado critico");
@@ -802,7 +829,7 @@ public class Main {
         mostrar(resultado);
     }
 
-    private static void cargarDatosDePrueba() {
+    public static void cargarDatosDePrueba() {
         String resultado = "DATOS DE PRUEBA\n\n";
 
         Cliente ana = new Cliente("1001", "Ana Gómez", "3001234567", "ana@mail.com", "Calle 10 #5-20");
@@ -819,7 +846,7 @@ public class Main {
         resultado += empresa.registrarRepuesto(new Repuesto("R-03", "Disco SSD 512GB", "Disco de estado solido", 200_000, 3, "Computador")) + "\n";
 
         ComputadorPortatil portatil = new ComputadorPortatil("EQ-01", "SN-111", "Lenovo", "ThinkPad", 2022, "Bueno", "15.6", "16GB", "512GB", true);
-        ComputadorEscritorio escritorio = new ComputadorEscritorio("EQ-02", "SN-222", "HP", "Pavilion", 2021, "Regular", "Intel i7", "32GB", true);
+        ComputadorEscritorio escritorio = new ComputadorEscritorio("EQ-02", "SN-222", "HP", "Pavilion", 2021, "Regular", "Intel i7", "32GB", "1TB SSD", true);
         TelefonoInteligente telefono = new TelefonoInteligente("EQ-03", "SN-333", "Samsung", "Galaxy S23", 2023, "Bueno", "Android", "256GB", "4000mAh", true);
         resultado += empresa.registrarEquipo(portatil, "1001") + "\n";
         resultado += empresa.registrarEquipo(escritorio, "1001") + "\n";
@@ -830,6 +857,13 @@ public class Main {
         resultado += empresa.registrarServicio(new ReparacionCorrectiva("S-03", "Cambio de pantalla", "Reemplazo de pantalla", 0, 3)) + "\n";
         resultado += empresa.registrarServicio(new MantenimientoPreventivo("S-04", "Mantenimiento telefono", "Revision", 30_000, telefono)) + "\n";
         resultado += empresa.registrarServicio(new MantenimientoPreventivo("S-05", "Mantenimiento escritorio", "Limpieza", 55_000, escritorio)) + "\n";
+
+        OrdenServicio orden1 = new OrdenServicio("ORD-001", LocalDate.now(), "Revision preventiva inicial", EstadoOrden.FINALIZADA);
+        resultado += empresa.registrarOrdenServicio(orden1, "1001") + "\n";
+
+        DetalleServicio det1 = new DetalleServicio("DET-01", "Mantenimiento preventivo anual", EstadoOrden.FINALIZADA, null, portatil, empresa.buscarServicio("S-02").get(), orden1);
+        resultado += orden1.registrarDetalleServicio(det1) + "\n";
+        resultado += det1.asignarTecnico(empresa.buscarTecnico("T-01").get()) + "\n";
 
         mostrar(resultado);
     }

@@ -112,8 +112,8 @@ public class OrdenServicio {
                 return "La orden no esta finalizada aun ";
             }
         }
-        setEstadoOrden(this.estadoOrden.FINALIZADA);
-        return "La orden a finalizado con exito con un precio de:" + calcularValorTotalOrden();
+        setEstadoOrden(EstadoOrden.FINALIZADA);
+        return "La orden ha finalizado con exito con un precio de: $" + calcularValorTotalOrden();
 
     }
 }

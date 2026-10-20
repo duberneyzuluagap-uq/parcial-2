@@ -75,9 +75,10 @@ public class DetalleServicio {
         }
 
         if (this.tecnico != null) {
-            this.tecnico.quitarDetalle(this);}
+            this.tecnico.quitarDetalle(this);
+        }
         this.tecnico = tecnico;
-        tecnico.quitarDetalle(this);
+        tecnico.agregarDetalle(this);
         return "Tecnico asignado correctamente al servicio";
     }
 
@@ -106,6 +107,11 @@ public class DetalleServicio {
     }
 
     public double calcularValorDetalle(){
-        return servicio.calcularCostoServicio();
+        if (servicio instanceof MantenimientoPreventivo && equipo != null) {
+            if (equipo instanceof ComputadorPortatil) return 60_000;
+            if (equipo instanceof ComputadorEscritorio) return 70_000;
+            if (equipo instanceof TelefonoInteligente) return 40_000;
+        }
+        return servicio != null ? servicio.calcularCostoServicio() : 0.0;
     }
 }
